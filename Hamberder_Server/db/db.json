@@ -1,0 +1,19 @@
+{
+    "users" : [
+        {"userID" : 1, "userName" : "Peti", "userAge" : 25},
+        {"userID" : 2, "userName" : "Zoli", "userAge" : 34},
+        {"userID" : 3, "userName" : "Juli", "userAge" : 19},
+        {"userID" : 4, "userName" : "Mari", "userAge" : 65},
+        {"userID" : 5, "userName" : "Tibi", "userAge" : 43},
+        {"userID" : 6, "userName" : "Kati", "userAge" : 87},
+        {"userID" : 7, "userName" : "Feri", "userAge" : 23}
+    ],
+
+    "comments" : [
+        {"id" : 1, "content" : "zsír", "userID" : 1},
+        {"id" : 2, "content" : "jó", "userID" : 5},
+        {"id" : 3, "content" : "tetszik", "userID" : 7},
+        {"id" : 4, "content" : "elég fos", "userID" : 3}
+    ]
+
+}

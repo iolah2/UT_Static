@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Burger</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://use.fontawesome.com/9fbff48403.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+        
+
+
+
+</head>
+</head>
+
+<body onload = "weatherApp()">
+
+    <div class="container-fluid" style="background-color: darkgrey;" id="weatherLine">
+        <form class="form-inline" stlye="width:100%">
+            <!-- <div class="row"> -->
+
+                <div class="form-inline" style="width: 100%;">
+                    <div class="d-none d-md-inline col-md-2 col-lg-2 text-center"  style="max-width: 100%; font-family: Verdana, Geneva, Tahoma, sans-serif !important;">
+                        <h3>Időjárás</h3>
+
+                    </div>
+                    <div class="col-xs-3 col-sm-4 col-md-3 col-lg-3 text-center d-inline" style="max-width: 100%;">
+                        <select class="form-control form-control-sm" id="dayOfWeek" name="dayOfWeek">
+                            <option selected>Válaszd ki a napot</option>
+                            <option value="0">Hétfő</option>
+                            <option value="1">Kedd</option>
+                            <option value="2">Szerda</option>
+                            <option value="3">Csütörtök</option>
+                            <option value="4">Péntek</option>
+                            <option value="5">Szombat</option>
+                            <option value="6">Vasárnap</option>
+                        </select>
+
+                    </div>
+                    <div class="col-xs-1 col-sm-2 col-md-2 col-lg-2 text-center d-inline" style="max-width: 100%;">
+                        <span class="d-none d-lg-inline">Hőmérséklet:  </span><span class="temp-show"></span> °C
+                    </div>
+                    <div class="col-xs-9 col-sm-4 col-md-2 col-lg-2 text-center d-inline" style="max-width: 100%;">
+                        <span class="d-none d-lg-inline">Ajánlatunk: </span><span
+                        class="offer-show"></span> 
+                    </div>
+                    <div class="d-none d-md-inline col-md-2 col-lg-3 text-center" style="max-width: 100%;">
+                        <button id="weatherButton" type="button" class="btn btn-primary" onclick="weatherApp()">Kérem a napi
+                            ajánlatot</button>
+                        
+                    </div>
+                    <div class="d-md-none col-xs-2 col-sm-2 col-md-1 text-center d-inline" style="max-width: 100%;">
+                        <button id="weatherButtonXS" type="button" class="btn btn-primary" onclick="weatherApp()"><i class="fa fa-question"></i></button>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
+    
+
+    <div class="container col-3">
+
+        <form>
+            
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" class="form-control" name="email" id="email">
+            </div>
+            <div class="form-group">
+                <label for="Comment">Megjegyzés</label>
+                <input type="text" class="form-control" name="Comment" id="Comment">
+            </div>
+            <div class="form-group">
+                <label for="TOP">Feltét</label>
+                <input type="text" class="form-control" name="TOP" id="TOP">
+            </div>
+            <div class="form-group">
+                <label for="amount">Mennyiség</label>
+                <input onchange="validateform()" type="number" class="form-control" name="amount" id="amount" value="1"
+                    min="1" max="10">
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="alma" id="alma">
+                    <label class="form-check-label" for="alma">Alma</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="Körte" id="Körte">
+                    <label class="form-check-label" for="Körte">Körte</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="Barack" id="Barack">
+                    <label class="form-check-label" for="Barack">Barack</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="Szilva" id="Szilva">
+                    <label class="form-check-label" for="Szilva">Szilva</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" name="palinka" id="almapalinka" value="1">
+                    <label for="almapalinka">Alma</label>
+                </div>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" name="palinka" id="Körtepalinka" value="2">
+                    <label for="Körtepalinka">Körte</label>
+                </div>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" name="palinka" id="Barackpalinka" value="3">
+                    <label for="Barackpalinka">Barack</label>
+                </div>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" name="palinka" id="szilvapalinka" value="4">
+                    <label for="szilvapalinka">Szilva</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div>
+                    Étel: <span class="OrderCost"></span>
+                </div>
+                <div>
+                    Szállítás: <span class="DeliveryCost"></span>
+                </div>
+                <div>
+                    Fizetendő összesen:
+                    <span class="show-amount">
+
+                    </span>
+                    Ft
+
+                </div>
+            </div>
+            <input value="submit" id="sbmButton" type="button" class="btn btn-primary" onclick="validateform()">
+        </form>
+
+    </div>
+
+    </div>
+    <script src="/Hamberder_site/js/main.js"></script>
+</body>
+
+</html>

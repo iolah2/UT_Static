@@ -1,0 +1,22 @@
+h1 {
+    color: blanchedalmond;
+}
+
+#mainHeader {
+    color:darkcyan;
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; 
+}
+
+
+li {
+    color:indigo;
+}
+
+p {
+    color: royalblue
+}
+
+.forms {
+    background-color: darkcyan;
+    display: inline-block;
+}
