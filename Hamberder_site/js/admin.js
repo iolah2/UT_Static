@@ -7,13 +7,13 @@ function editButtonAppearance() {
 
     if (buttonState == "0") {
         this.setAttribute("value", "1");
-        this.setAttribute("class", "btn btn-success btn-rounded");
+        this.setAttribute("class", "btn btn-success btn-rounded btn-sm");
         this.innerHTML = '<i class="fas fa-check"></i>';
         editRows(this)
     } else if (buttonState == "1") {
         if (saveRows(this)) {
             this.setAttribute("value", "0");
-            this.setAttribute("class", "btn btn-info btn-rounded");
+            this.setAttribute("class", "btn btn-info btn-rounded btn-sm");
             this.innerHTML = '<i class="fas fa-edit"></i>';
         }
     }
@@ -97,10 +97,10 @@ function saveRows(saveBtn) {
             then(data => console.log(data)).
             catch(err => console.error(err));
         tRow.querySelector('td[name="userName"]').innerHTML = userData["userName"];
-        tRow.querySelector('td[name="userAge"]').innerHTML = userData["userAge"];       
+        tRow.querySelector('td[name="userAge"]').innerHTML = userData["userAge"];
         return true
-    } else {return false}
-}     
+    } else { return false }
+}
 
 /*
 Visszaállítja az új sor hozzáadása sor eredeti állapotát
@@ -175,6 +175,7 @@ function addData(btn) {
             then(data => console.log(data)).
             catch(err => console.error(err));
     }
+    newRawDefault()
 
 }
 
@@ -230,10 +231,15 @@ function tablePopulator(data = null) {
 
     let btnCell = document.createElement("td");
     newRow.appendChild(btnCell);
-    btnCell.innerHTML = '<div class="btn-group" role="group" aria-label="modButtons"><button class="btn btn-info btn-rounded" name="editBtn" type="button" value="0"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-rounded" name="delbtn"><i class="fas fa-eraser"></i></button></div>';
+    btnCell.innerHTML = '<div class="btn-group" role="group" aria-label="modButtons"><button class="btn btn-info btn-rounded btn-sm" name="editBtn" type="button" value="0"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-rounded btn-sm" name="delbtn"><i class="fas fa-eraser"></i></button></div>';
     editDelBtnAddFunc();
 
     // sokkal szebb/jobb megoldás lenne, ha a function-t úgy adnám hozz, hogy adja át a (this) -t, mert úgy könnyebb utána dolgozni vele.
+}
+
+
+function clearTable() {
+    document.getElementById("userDataTbody").innerHTML = "";
 }
 
 /*
@@ -279,7 +285,7 @@ function delRow(btn) {
             then(resp => resp.JSON()).
             then(data => console.log(data)).
             catch(err => console.error(err));
-    } else {console.log("Törlés visszavonva")}
+    } else { console.log("Törlés visszavonva") }
 
 }
 
@@ -313,13 +319,25 @@ function newHtmlElementCreator(parent, newElement, attr = null, innerValue = nul
 /*
 Az oldal betöltésekor összegyűjti a felhasználók adatait
 */
-function initiateDataGet(userJSONdata = []) {
-    fetchUserData("http://localhost:3000/users").
+function initiateDataGet(userJSONdata = [], intitialPageNum) {
+    fetchUserData(`http://localhost:3000/users/?_start=${intitialPageNum * 10}&_end=${(intitialPageNum * 10) + 10}`).
         then(data => {
-            for (const [key, value] of Object.entries(data)) {
-
-                tablePopulator(data[key]);
-                userJSONdata.push(data[key]);
+            let tableData;
+            for (const [k, v] of Object.entries(data)) {
+                if (k == "data") {
+                    tableData = v;
+                } else {
+                    let pageNum = Math.ceil(v / 10)
+                    if (pageNum > 3) {
+                        CreatePages(3, intitialPageNum+1)
+                    } else {CreatePages(pageNum, intitialPageNum+1);}
+                    maxPageLength = pageNum;
+                }
+            }
+            clearTable();
+            for (const [key, value] of Object.entries(tableData)) {
+                tablePopulator(tableData[key]);
+                userJSONdata.push(tableData[key]);
 
             }
             return userJSONdata;
@@ -328,13 +346,144 @@ function initiateDataGet(userJSONdata = []) {
         })
 }
 
-async function fetchUserData(url) {
-    let response = await fetch(url);
-    let data = await response.json();
-    return data
+
+/* Létrehozza az oldalszámozást a táblázat alatt */
+function CreatePages(pageNum = 0, active = 1) {
+    let navDiv = document.getElementById("Pages");
+    if (navDiv.innerHTML.trim() == "") {
+        let nav = newHtmlElementCreator(navDiv, "nav", { "aria-label": "..." });
+        let ul = newHtmlElementCreator(nav, "ul", { "class": "pagination justify-content-center" });
+        let left = newHtmlElementCreator(ul, "li", { "class": "page-item disabled", "name": "LeftShifter" });
+        
+        newHtmlElementCreator(left, "button", { "class": "page-link", "onclick": "ShiftPageLeft(this)", "value": -1 }, '<i class="fas fa-angle-double-left"></i>')
+        
+        CreatePageNumbers(ul, pageNum, active)
+        let right = newHtmlElementCreator(ul, "li", { "class": "page-item", "name": "RightShifter" });
+        newHtmlElementCreator(right, "button", { "class": "page-link", "onclick": "shiftPageRight(this)", "value": "+1" }, '<i class="fas fa-angle-double-right"></i>')
+    } /*innen új*/else {
+        let ul = navDiv.querySelector("ul");
+        ul.innerHTML = "";
+        console.log(active)
+        if (active > 1) {
+            let left = newHtmlElementCreator(ul, "li", { "class": "page-item", "name": "LeftShifter" });
+            newHtmlElementCreator(left, "button", { "class": "page-link", "onclick": "ShiftPageLeft(this)", "value": -1 }, '<i class="fas fa-angle-double-left"></i>')
+        } else {
+            let left = newHtmlElementCreator(ul, "li", { "class": "page-item disabled", "name": "LeftShifter" });
+            newHtmlElementCreator(left, "button", { "class": "page-link", "onclick": "ShiftPageLeft(this)", "value": -1 }, '<i class="fas fa-angle-double-left"></i>')
+        }
+
+        if (active-1 == 0) {
+            CreatePageNumbers(ul, active+2, active);
+        } else if (active+1 < maxPageLength)  {            
+            CreatePageNumbers(ul, active+1, active, active-1);
+        } else {
+            CreatePageNumbers(ul, maxPageLength, active, active-1);
+        }
+
+        if (active == maxPageLength) {
+            let right = newHtmlElementCreator(ul, "li", { "class": "page-item disabled", "name": "RightShifter" });
+            newHtmlElementCreator(right, "button", { "class": "page-link", "onclick": "shiftPageRight(this)", "value": "+1" }, '<i class="fas fa-angle-double-right"></i>')
+        } else {
+            let right = newHtmlElementCreator(ul, "li", { "class": "page-item", "name": "RightShifter" });
+            newHtmlElementCreator(right, "button", { "class": "page-link", "onclick": "shiftPageRight(this)", "value": "+1" }, '<i class="fas fa-angle-double-right"></i>')
+        }
+    }
+}
+
+function CreatePageNumbers(parent=null, pageNum, active, startPage=1) {
+    for (let i = startPage; i <= pageNum; i++) {
+        if (i == active) {
+            let li = newHtmlElementCreator(parent, "li", { "class": "page-item active", "name": "PageElement" });
+            let btn = newHtmlElementCreator(li, "button", { "class": "page-link", "onclick": "ShowTableData(this)", "value": i - 1 }, i)
+        } else {
+            let li = newHtmlElementCreator(parent, "li", { "class": "page-item", "name": "PageElement" });
+            let btn = newHtmlElementCreator(li, "button", { "class": "page-link", "onclick": "ShowTableData(this)", "value": i - 1 }, i)
+        }
+    }
+}
+
+function shiftPageRight(btn) {
+    // jobbra tudj lapozni, a gomb aktív státusza változzon, töltődjön a tábla
+    let prevActiveButton = btn.parentElement.parentElement.querySelector("li[class='page-item active']");
+    prevActiveButton.setAttribute("class", "page-item");
+    let nextPageToShow = parseInt(prevActiveButton.firstElementChild.value) + 1;
+    initiateDataGet([], nextPageToShow);
+}
+
+function ShiftPageLeft(btn) {
+    // balra tudj lapozni, a gomb aktív státusza változzon, töltődjön a tábla
+    let prevActiveButton = btn.parentElement.parentElement.querySelector("li[class='page-item active']");
+    prevActiveButton.setAttribute("class", "page-item");
+    let nextPageToShow = parseInt(prevActiveButton.firstElementChild.value) -1;
+    initiateDataGet([], nextPageToShow);
 }
 
 
+function upgradePages(initPageNum, EndPageNum) {
+    let PageButtons = document.querySelectorAll("li[name='PageElement']");
+    if (EndPageNum - initPageNum == 2) {
+        for (let i = 0; i < 3; i++) {
+            setPageBtnStatus(PageButtons[i].firstElementChild, { "value": initPageNum + i - 1 }, initPageNum + i);
+        }
+    } else if (EndPageNum - initPageNum == 1) {
+        for (let i = 0; i < 2; i++) {
+            setPageBtnStatus(PageButtons[i].firstElementChild, { "value": initPageNum + i - 1 }, initPageNum + i);
+        } 
+        setPageBtnStatus(PageButtons[2], {"class" : "page-item disabled"});
+        setPageBtnStatus(PageButtons[2].firstElementChild, {"style" : "color:white"}, "0");
+    } else {
+        setPageBtnStatus(PageButtons[0].firstElementChild, { "value": initPageNum + 0 - 1 }, initPageNum + 0);
+
+        setPageBtnStatus(PageButtons[1], {"class" : "page-item disabled"});
+        setPageBtnStatus(PageButtons[1].firstElementChild, {"style" : "color:white;"}, "0");
+        setPageBtnStatus(PageButtons[2], {"class" : "page-item disabled"});
+        setPageBtnStatus(PageButtons[2].firstElementChild, {"style" : "color:white;"}, "0");
+    }
+}
+
+function setPageBtnStatus(btn, attribute = null, innerValue) {
+    if (attribute != null) {
+        for (const [key, value] of Object.entries(attribute)) {
+            btn.setAttribute(key, value);
+        }
+    }
+    if (innerValue != null) {
+        btn.innerHTML = innerValue;
+    }
+}
+
+
+function ShowTableData(btn) {
+    initiateDataGet([], parseInt(btn.value));
+    for (li of btn.parentElement.parentElement.children) {
+        if (li.getAttribute("class") == "page-item active") {
+            li.setAttribute("class", "page-item")
+        }
+    }
+    if (btn.parentElement.getAttribute("class") == "page-item") {
+        btn.parentElement.setAttribute("class", "page-item active")
+    }
+    if (parseInt(btn.value) + 1 == maxPageLength) {
+        btn.parentElement.parentElement.querySelector("li[name='RightShifter']").setAttribute("class", "page-item disabled");
+    }
+}
+
+async function fetchUserData(url) {
+    let dataLength;
+    let response = await fetch(url);
+    let data = await response.json();
+    for (const [key, value] of response.headers.entries()) {
+        if (key == "x-total-count") {
+            dataLength = value;
+        }
+    }
+    temp = {};
+    temp["data"] = data;
+    temp["length"] = dataLength;
+    return temp
+}
+
+var maxPageLength;
 let userJSONdata = [];
 window.addEventListener("load", editDelBtnAddFunc);
-window.addEventListener("load", initiateDataGet(userJSONdata));
+window.addEventListener("load", initiateDataGet(userJSONdata, 0));
